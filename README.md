@@ -39,11 +39,14 @@ SSH-ключ передаётся через metadata.
 
 
 #######################
+Задание 3
 
-Создание Container Registry
+Для контейнеризации веб-приложения был создан файл `Dockerfile`.
+В качестве базового образа используется `python:3.11-slim`. В контейнер копируется файл `final_app.py`, содержащий Flask веб-приложение. Устанавливается необходимая зависимость `Flask` и библиотека `PyMySQL` для подключения приложения к базе данных MySQL. Алогоритм работы я позадейтсовал из предыдущего ДЗ. Обращение к скрипту пишет в таблицу бд id, ip и timestamp обращения
+Приложение запускается на 80 порту. Запуск контейнера выполняется командой `python final_app.py`.
 
-Для хранения Docker-образов создаётся Container Registry в YC с помощью Terraform.
-
+ образ Docker для веб-приложения собирается и запускается на VM `final-web`. Для хранения Docker-образа в Yandex Cloud был создан Container Registry `final-registry` с помощью Terraform.
+****************
 Создаём файл registry.tf:
 
 resource "yandex_container_registry" "final" {
@@ -51,10 +54,14 @@ resource "yandex_container_registry" "final" {
   folder_id = var.folder_id
 }
 
-Здесь:
+Далее создаем контейнер 
 
-yandex_container_registry — ресурс Container Registry Yandex Cloud;
-name = "final-registry" — имя реестра;
-folder_id = var.folder_id — реестр создаётся в текущем каталоге Yandex Cloud, без жёстко заданного ID.
+<img width="1665" height="485" alt="image" src="https://github.com/user-attachments/assets/cce8b8ba-e65c-4fe8-b042-4d0eb8e799fa" />
 
-После создания Registry в него можно будет загружать Docker-образы проекта и затем использовать их при развёртывании приложения.
+и загружаем его в реестр , авторизуемся через ключ сервисного аккаунта 
+
+<img width="1353" height="319" alt="image" src="https://github.com/user-attachments/assets/0b7df326-5d03-411a-9a6e-e443b4e81cc0" />
+
+проверяем что наш образ попал в registry на YC
+
+<img width="1834" height="443" alt="image" src="https://github.com/user-attachments/assets/aad3c4fa-efb8-466d-ac88-f64ed4d75ade" />
