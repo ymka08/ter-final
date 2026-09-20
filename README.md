@@ -31,6 +31,7 @@ export TF_VAR_service_account_key_file="$HOME/.service_study_authorized_key.json
 
 
 ######################
+
 Задание 1
 
 Создание БД MySQL в YC
@@ -50,6 +51,7 @@ MySQL настроен на приём внешних подключений н�
 
 
 #######################
+
 Задание 3
 
 Для контейнеризации веб-приложения был создан файл `Dockerfile`.
