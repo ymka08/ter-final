@@ -1,0 +1,89 @@
+#cloud-config
+
+package_update: true
+
+packages:
+  - docker.io
+  - docker-compose-v2
+
+bootcmd:
+  - mkdir -p /opt/final_web
+
+write_files:
+  - path: /opt/final_web/.env
+    permissions: "0600"
+    content: |
+      DB_HOST=10.10.2.10
+      DB_USER=final
+      DB_PASSWORD=${final_mysql_password}
+      DB_NAME=final_db
+
+  - path: /opt/final_web/final_app.py
+    permissions: "0644"
+    content: |
+      from flask import Flask, request
+      import mysql.connector
+      import os
+
+      app = Flask(__name__)
+
+      @app.route("/")
+      def index():
+          ip = request.remote_addr
+
+          connection = mysql.connector.connect(
+              host=os.getenv("DB_HOST"),
+              user=os.getenv("DB_USER"),
+              password=os.getenv("DB_PASSWORD"),
+              database=os.getenv("DB_NAME")
+          )
+
+          cursor = connection.cursor()
+
+          cursor.execute(
+              "INSERT INTO requests (ip) VALUES (%s)",
+              (ip,)
+          )
+
+          connection.commit()
+
+          cursor.close()
+          connection.close()
+
+          return "Request received"
+
+      if __name__ == "__main__":
+          app.run(host="0.0.0.0", port=80)
+
+  - path: /opt/final_web/Dockerfile
+    permissions: "0644"
+    content: |
+      FROM python:3.12-slim
+
+      WORKDIR /app
+
+      RUN pip install flask mysql-connector-python
+
+      COPY final_app.py .
+
+      CMD ["python", "final_app.py"]
+
+  - path: /opt/final_web/docker-compose.yml
+    permissions: "0644"
+    content: |
+      services:
+        web:
+          container_name: final_web
+          build:
+            context: .
+            dockerfile: Dockerfile
+          env_file:
+            - .env
+          ports:
+            - "80:80"
+          restart: on-failure
+
+runcmd:
+  - systemctl enable docker
+  - systemctl start docker
+  - [bash, -c, "cd /opt/final_web && docker compose up -d --build"]

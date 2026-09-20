@@ -1,0 +1,11 @@
+services:
+  web:
+    container_name: final_web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+    restart: on-failure
