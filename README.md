@@ -3,8 +3,11 @@
 все ключи подгружаются через обявление путей переменных на моей учебной VM
 
 export TF_VAR_cloud_id="$(cat ~/cloud_id)"
+
 export TF_VAR_folder_id="$(cat ~/folder_id)"
+
 export TF_VAR_ssh_public_key_path="$HOME/ssh-key-ymka-vm-toolbox.pub"
+
 export TF_VAR_service_account_key_file="$HOME/.service_study_authorized_key.json"
 
 но данные для БД остались в открытом виде в cloud файле бд для наглядности  
