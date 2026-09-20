@@ -1,41 +1,49 @@
 # ter-final
-
-
-
-
-
-
-
-
-Обявление путей для всех обьявленых переменных паролей и ключей
+небольшое замечание по безопасности: 
+все ключи подгружаются через обявление путей переменных на моей учебной VM
 
 export TF_VAR_cloud_id="$(cat ~/cloud_id)"
 export TF_VAR_folder_id="$(cat ~/folder_id)"
 export TF_VAR_ssh_public_key_path="$HOME/ssh-key-ymka-vm-toolbox.pub"
 export TF_VAR_service_account_key_file="$HOME/.service_study_authorized_key.json"
-####export TF_VAR_service_account_key_file="/home/ymka/.service_study_authorized_key.json"
+
+но данные для БД остались в открытом виде в cloud файле бд для наглядности  
+
+Результат создания двух VM и подстетей с получением внешних ip доступом по через 80 порт в скриншотах:
+
+<img width="1850" height="140" alt="image" src="https://github.com/user-attachments/assets/e3d60abc-0cdb-4fc7-865e-167c0a9999f1" />
+
+
+<img width="1204" height="586" alt="image" src="https://github.com/user-attachments/assets/49fca07d-98f4-44f4-97ea-8fa443f429fb" />
+
+заходим на web и смотрим работающий контенер слушающий на 80 порту
+
+<img width="1138" height="78" alt="image" src="https://github.com/user-attachments/assets/5e37ab74-2742-4550-a921-67058bad18d1" />
+
+резуьтат обращения через публичный ip и с локальной машины curl http://localhost Request received
+
+<img width="749" height="246" alt="image" src="https://github.com/user-attachments/assets/186f5ccd-483a-408f-ab0a-bd38865dbc7a" />
+
+Результаты записей в базу данных смотрите ниже
 
 
 ######################
+Задание 1
 
-Создание БД MySQL в Yandex Cloud
+Создание БД MySQL в YC
+База данных MySQL была развернута на отдельной виртуальной машине `final-db` на Ubuntu 22.04 в подсети `10.10.2.0/24`. При создании ВМ с помощью `cloud-init` автоматически устанавливался MySQL Server и выполнялась его настройка.
+MySQL настроен на приём внешних подключений на порту `3306`. Для обращения из web приложения был создан пользователь `final` с правами на базу данных `final_db` и таблица `requests` со полями: `id`, `ip` и `time`.
+Доступ к MySQL разрешён через Security Group на порт `3306`. В результате веб-приложение, запущенное в Docker на ВМ `final-web`, успешно подключается к MySQL на `final-db` и записывает полученные запросы в базу данных.
 
-Для размещения БД создаётся виртуальная машина final-db в YC. В качестве ОС используется Ubuntu 22.04.
-VM размещается в зоне ru-central1-b и подключается к подсети final-subnet-b 10.10.2.0/24.
-Параметры виртуальной машины:
-2 CPU
-1 ГБ
-10Гб 
-прерываемая 
-ОС Ubuntu 22.04
-публичный IP-адрес включён для возможности подключения к VM по SSH
-SSH-ключ передаётся через metadata.
-Установка MySQL выполняется автоматически при первом запуске VM с помощью cloud-init-db.yaml
+<img width="860" height="71" alt="image" src="https://github.com/user-attachments/assets/563d7222-504f-4fab-9919-4b052425a49e" />
 
-после создания final-db автоматически:
-1.запускается Ubuntu 
-2.сloud-Init устанавливает пакеты
-3.устанавливается mysql-server, MySQL добавляется в автозапуск и запускается.
+<img width="741" height="534" alt="image" src="https://github.com/user-attachments/assets/b2fc63f5-7e7b-497b-af9f-0521265a7a59" />
+
+
+Записи обращений в БД
+
+<img width="886" height="228" alt="image" src="https://github.com/user-attachments/assets/263d3a87-8284-4585-993c-1e33b4b5bbc5" />
+
 
 
 #######################
@@ -47,8 +55,8 @@ SSH-ключ передаётся через metadata.
 
  образ Docker для веб-приложения собирается и запускается на VM `final-web`. Для хранения Docker-образа в Yandex Cloud был создан Container Registry `final-registry` с помощью Terraform.
 ****************
+Создание Container Registry
 Создаём файл registry.tf:
-
 resource "yandex_container_registry" "final" {
   name      = "final-registry"
   folder_id = var.folder_id
