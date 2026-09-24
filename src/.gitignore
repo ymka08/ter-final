@@ -4,6 +4,7 @@
 !.terraformrc
 *.tfstate
 *.tfstate.*
+*.old
 terraform.tfvars
 personal.auto.tfvars
 .service_study_authorized_key.json

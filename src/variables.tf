@@ -33,8 +33,3 @@ variable "vms_resources" {
   }))
 }
 
-variable "final_mysql_password" {
-  type        = string
-  description = "Password for MySQL user final"
-  sensitive   = true
-}

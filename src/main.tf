@@ -2,6 +2,19 @@ data "yandex_compute_image" "ubuntu" {
   family = "ubuntu-2204-lts"
 }
 
+
+resource "random_password" "mysql_root" {
+  length  = 16
+  special = false
+}
+
+resource "random_password" "mysql_final" {
+  length  = 16
+  special = false
+}
+
+
+
 resource "yandex_compute_instance" "web" {
   name        = "final-web"
   zone        = var.final_zone
@@ -30,13 +43,13 @@ resource "yandex_compute_instance" "web" {
   }
 
 
-  metadata = {
-    ssh-keys           = "ubuntu:${file(var.ssh_public_key_path)}"
-    serial-port-enable = "1"
-    user-data = templatefile("${path.module}/cloud-init-web.yaml", {
-      final_mysql_password = var.final_mysql_password
-    })
-  }
+metadata = {
+  ssh-keys           = "ubuntu:${file(var.ssh_public_key_path)}"
+  serial-port-enable = "1"
+  user-data = templatefile("${path.module}/cloud-init-web.yaml", {
+  mysql_final_password = random_password.mysql_final.result
+   })  
+  }  
 
   scheduling_policy {
     preemptible = true
@@ -74,8 +87,12 @@ resource "yandex_compute_instance" "db" {
   metadata = {
     ssh-keys           = "ubuntu:${file(var.ssh_public_key_path)}"
     serial-port-enable = "1"
-    user-data          = file("${path.module}/cloud-init-db.yaml")
+    user-data = templatefile("${path.module}/cloud-init-db.yaml", {
+    mysql_root_password  = random_password.mysql_root.result
+    mysql_final_password = random_password.mysql_final.result
+   })
   }
+
 
   scheduling_policy {
     preemptible = true

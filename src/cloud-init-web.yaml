@@ -15,7 +15,7 @@ write_files:
     content: |
       DB_HOST=10.10.2.10
       DB_USER=final
-      DB_PASSWORD=${final_mysql_password}
+      DB_PASSWORD=${mysql_final_password}
       DB_NAME=final_db
 
   - path: /opt/final_web/final_app.py

@@ -7,6 +7,18 @@ terraform {
       version = "~> 0.150"
     }
   }
+
+  backend "s3" {
+    endpoint = "https://storage.yandexcloud.net"
+    bucket   = "netology-ymka-bucket"
+    key      = "terraform/terraform.tfstate"
+
+    region                      = "ru-central1"
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+  }
 }
 
 provider "yandex" {
