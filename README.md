@@ -10,7 +10,7 @@ export TF_VAR_ssh_public_key_path="$HOME/ssh-key-ymka-vm-toolbox.pub"
 
 export TF_VAR_service_account_key_file="$HOME/.service_study_authorized_key.json"
 
-но данные для БД остались в открытом виде в cloud файле бд для наглядности  
+UPD. Сгенерированный пароль пользователя final передаётся из main.tf в файл cloud-init-web.yaml с помощью функции templatefile. Terraform подставляет значение переменной mysql_final_password в конфигурацию веб-сервера. На сервере БД тот же сгенерированный пароль передаётся через cloud-init-db.yaml
 
 Результат создания двух VM и подстетей с получением внешних ip на скриншотах:
 
@@ -78,3 +78,7 @@ resource "yandex_container_registry" "final" {
 проверяем что наш образ попал в registry на YC
 
 <img width="1834" height="443" alt="image" src="https://github.com/user-attachments/assets/aad3c4fa-efb8-466d-ac88-f64ed4d75ade" />
+
+Для хранения состояния Terraform используется удалённый backend S3 в Yandex Cloud. В файле providers.tf настроен backend с указанием Object Storage, бакет netology-ymka-bucket и пути к файлу состояния terraform.tfstate.
+
+<img width="1610" height="366" alt="image" src="https://github.com/user-attachments/assets/06dd9c4c-8f23-41c7-ad09-73c4c1298ecf" />
